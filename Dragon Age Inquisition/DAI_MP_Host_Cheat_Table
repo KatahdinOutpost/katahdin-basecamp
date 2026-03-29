@@ -1,0 +1,725 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="34">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>1</ID>
+      <Description>"Primary Script"</Description>
+      <Options moHideChildren="1" moManualExpandCollapse="1" moActivateChildrenAsWell="1" moDeactivateChildrenAsWell="1" moAllowManualCollapseAndExpand="1"/>
+      <LastState/>
+      <Color>008000</Color>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+//DragonAgeInquisition.exe+3FF7208 Full
+//DragonAgeInquisition.exe+4292948 Trial
+aobscanmodule(HijackRewards,DragonAgeInquisition.exe,01 38 48 8B 5C 24 50 48 8B 6C 24 58 48 8B 74 24)
+registersymbol(HijackRewards)
+
+//DragonAgeInquisition.exe+36BEE58 Full
+//DragonAgeInquisition.exe+3958978 Trial
+aobscanmodule(HijackStats,DragonAgeInquisition.exe,0F 28 7C 24 40 F3 0F 11 73 30 0F 28 74 24 50 74 1D)
+registersymbol(HijackStats)
+
+label(IsAbortAutoKill)
+registersymbol(IsAbortAutoKill)
+label(IsAbortVases)
+registersymbol(IsAbortVases)
+label(IsAutoKillHumansOnXP)
+registersymbol(IsAutoKillHumansOnXP)
+label(IsEnableSuperPowers)
+registersymbol(IsEnableSuperPowers)
+label(IsIncreaseXP)
+registersymbol(IsIncreaseXP)
+label(IsKillHumansActive)
+registersymbol(IsKillHumansActive)
+label(IsNugGold)
+registersymbol(IsNugGold)
+label(IsSaarebas)
+registersymbol(IsSaarebas)
+label(IsSuperHumanDetected)
+registersymbol(IsSuperHumanDetected)
+label(IsVasesDone)
+registersymbol(IsVasesDone)
+label(IsXPDone)
+registersymbol(IsXPDone)
+label(LastPointerStart)
+registersymbol(LastPointerStart)
+label(Loaded)
+registersymbol(Loaded)
+label(SkipStats)
+registersymbol(SkipStats)
+
+alloc(PlayGod,8192)
+
+HijackRewards:
+  jmp Rewards
+  nop
+  nop
+  nop
+ReturnRewards:
+
+HijackStats:
+  jmp PlayGod
+  nop
+ReturnStats:
+
+PlayGod:
+//Overwritten Code
+  movaps xmm7,[rsp+40]
+  movss [rbx+30],xmm6
+  movaps xmm6,[rsp+50]
+//Backup and Start
+  pushfq
+  push rax
+  push rcx
+  push rsi
+  push rdi
+//Ensure its the correct instance (*Potential* CRASH Guard)
+  cmp r13,10
+  jne SkipStats
+//
+//Check Base Pointer to see if it has changed ~ offset sometimes too large for direct use according to CE (Slot 1)
+  mov rax,"DragonAgeInquisition.exe"+02A5D280
+  mov rax,[rax]
+//IsPossiblyRealAddress
+  cmp rax,1000000
+  jle SkipStats
+//
+  mov rsi,[LastPointerStart]
+  cmp rsi,rax
+  jne ResetStats
+//Save for later checks (Part of *Potential* CRASH Guard)
+  movss [Loaded],xmm8
+//Abort Loaded Check if SuperHumans already exist, was causing issues with newly joining players reseting the loaded amount
+  cmp byte ptr [IsSuperHumanDetected],1
+  je StartCheck
+//This should be 100 once fully loaded (*Potential* CRASH Guard)
+  cmp dword ptr [Loaded],(float)100
+  jne SkipStats
+StartCheck:
+  mov rsi,rbx
+//IsPossiblyRealAddress
+  cmp rsi,1000000
+  jle SkipStats
+//
+  mov rsi,[rsi+20]
+//IsPossiblyRealAddress
+  cmp rsi,1000000
+  jle SkipStats
+//
+  xor rcx,rcx
+  add rsi,9C
+WiggleRoom:
+  mov rax,rcx
+  add rax,rsi
+  inc rcx
+  cmp rcx,38
+  jg NPCs
+//Check for Players
+  mov rdi,'_Consuma'
+  cmp [rax],rdi
+  je Players
+//Another, rarer, check for Saarebas Players ~ doesnt seem to be a need to use it (stat offset of -90 if that changes)
+  mov rdi,'t_Health'
+  cmp [rax],rdi
+  je SkipStats
+//Check for Saarebas Players
+  mov rdi,'_Enduran'
+  cmp [rax],rdi
+  jne WiggleRoom
+  mov byte ptr [IsSaarebas],1
+//Align code for Saarebas
+  sub rbx,AB0
+Players:
+//Check if I killed that player (myself usually via Health Regen %)
+  cmp [rbx-18],(float)-5
+  je QuickerHumanKills
+//Check if SuperPowers already given to player (Armor)
+  cmp [rbx-210],(float)420
+  jge SuperHuman
+  cmp byte ptr [IsKillHumansActive],1
+  je KillHumans
+//Are SuperPowers even supposed to be given out?
+  cmp byte ptr [IsEnableSuperPowers],1
+  jne SkipStats
+//Check if autokill is on so everyone has a visual indicator (once they realize it)
+  cmp byte ptr [IsAutoKillHumansOnXP],1
+  je NoRegen
+//Health Regen
+  mov [rbx-18],(float)20
+  jmp Move
+NoRegen:
+//Heal On Kill
+  mov [rbx+788],0
+Move:
+//Speed Max
+  mov [rbx+420],(float)6
+//Speed Modified
+  mov [rbx+230],(float)3
+//Health Max
+  mov [rbx-D50],(float)420420
+//Health Current, eg if IsAutoKillOnXP is actived ~  keep them safe despite being in the red...
+  mov [rbx-60],(float)100100
+//Secondary Regen
+  mov [rbx+80],(float)90
+//Attack
+  mov [rbx-A80],(float)222222
+//Cooldown Reduction
+  mov [rbx+E90],(float)90
+//Critical Chance
+  mov [rbx-4E0],(float)100
+//Increase Stealth Detection Range
+  mov [rbx+D20],(float)90
+//Make Main Hand Rune Damage equal Main Hand Weapon Damage
+  mov rax,[rbx-A38]
+  mov [rbx+C00],rax
+//Make Off Hand Rune Damage equal Off Hand Weapon Damage
+  mov rax,[rbx-9F0]
+  mov [rbx+BB8],rax
+//Elusive Current (Older visual notification and AutoKillAfterXP aid but no reason to remove it either?)
+  mov [rbx+1C50],(float)4
+//Armor
+  mov [rbx-210],(float)420
+//Armor Front
+  mov [rbx+1740],(float)420
+SkipStats:
+//Check if Saarebas was set
+  cmp byte ptr [IsSaarebas],1
+  jne StandardSkip
+//Un-align code for Saarebas
+  add rbx,AB0
+//Revert to default of not Saarebas for next cycle
+  mov byte ptr [IsSaarebas],0
+StandardSkip:
+//Restore Registers and Flags to original values
+  pop rdi
+  pop rsi
+  pop rcx
+  pop rax
+  popfq
+//Returning you to your original programming...
+  jmp ReturnStats
+
+QuickerHumanKills:
+  cmp [rbx-60],(float)100100
+  jle SkipStats
+  mov [rbx-60],(float)100100
+  jmp SkipStats
+
+SuperHuman:
+  mov byte ptr [IsSuperHumanDetected],1
+SuperHumanReturn:
+  cmp byte ptr [IsKillHumansActive],1
+  je KillHumans
+  cmp byte ptr [IsAutoKillHumansOnXP],1
+  jne SkipStats
+CheckSuicide:
+//Final suicide check, is XP set?
+  cmp byte ptr [IsXPDone],0
+  je SkipStats
+KillHumans:
+//Health Regen
+  mov [rbx-18],(float)-5
+//HealOnKill
+  mov [rbx+788],0
+//Current Health
+  mov [rbx-60],0
+  jmp SkipStats
+
+NPCs:
+//Skip if no human with SuperPowers exist yet
+  cmp byte ptr [IsSuperHumanDetected],1
+  jne SkipStats
+//
+  cmp byte ptr [IsXPDone],1
+  jne SkipStats
+//Abort if killing humans manually
+  cmp byte ptr [IsKillHumansActive],1
+  je SkipStats
+//Abort if doing XP runs
+  cmp byte ptr [IsAutoKillHumansOnXP],1
+  je SkipStats
+//Abort if option unchecked
+  cmp byte ptr [IsAbortAutoKill],1
+  je SkipStats
+//DoubleCheck known Human offsets for Revive (Max) to ensure they arent accidently killed if they bypassed other checks somehow
+  cmp [rbx-7F8],(float)4
+  je SkipStats
+  cmp [rbx-888],(float)4
+  je SkipStats
+  cmp [rbx-1338],(float)4
+  je SkipStats
+  mov [rbx+30],0
+  jmp SkipStats
+
+ResetStats:
+//Save New Pointer for comparison next round ~ offset sometimes too large for direct use according to CE (Slot 1)
+  mov rax,"DragonAgeInquisition.exe"+02A5D280
+  mov rax,[rax]
+  mov [LastPointerStart],rax
+//Reset Checks
+  mov byte ptr [IsKillHumansActive],0
+  mov byte ptr [IsSuperHumanDetected],0
+  mov byte ptr [IsVasesDone],0
+  mov byte ptr [IsXPDone],0
+  mov [Loaded],0
+  jmp SkipStats
+
+Rewards:
+//Overwritten Code
+  add [rax],edi
+  mov rbx,[rsp+50]
+  mov rbp,[rsp+58]
+  mov rsi,[rsp+60]
+//Backup and Start
+  pushfq
+  push rax
+  push rsi
+//Compare with standard NM and HB XP Reward Values and only continue if they match
+  cmp edi,#150
+  je SetRewards
+  cmp edi,#157
+  je SetRewards
+  cmp edi,#165
+  je SetRewards
+  cmp edi,#172
+  je SetRewards
+  cmp edi,#224
+  je SetRewards
+  cmp edi,#225
+  je SetRewards
+SkipRewards:
+  pop rsi
+  pop rax
+  popfq
+  jmp ReturnRewards
+
+SetRewards:
+//Check if value is too high, eg placeholder or invalid
+  cmp [rax],#222222
+  jge SkipRewards
+//Set IsXPDone for evaluation with AutoKillAfterXP
+  mov byte ptr [IsXPDone],1
+//Am I cautioning them? (NormalXP was the previous default but not any more with IncreaseXP enabled by default)
+  cmp byte ptr [IsIncreaseXP],0
+  je NormalXP
+  cmp [rax],#111111
+  jge SkipRewards
+  mov [rax],#111111
+//Try to get a random number to add on by using addresses that change between games
+XPCycleStart:
+  xor rsi,rsi
+  mov esi,eax
+XPCycle:
+  sub rsi,#9743
+  cmp rsi,#9743
+  jge XPCycle
+  add [rax],rsi
+  jmp VaseLoot
+NormalXP:
+  cmp [rax],#11111
+  jge SkipRewards
+  mov [rax],#11111
+  jmp XPCycleStart
+
+VaseLoot:
+  cmp byte ptr [IsAbortVases],1
+  je SkipRewards
+  cmp byte ptr [IsVasesDone],1
+  je SkipRewards
+  mov byte ptr [IsVasesDone],1
+//Base Pointer ~ offset sometimes too large for direct use according to CE (Castle Map Vases)
+  mov rsi,"DragonAgeInquisition.exe"+28E2BF8
+//IsPossiblyRealAddress
+  mov rsi,[rsi]
+  cmp rsi,1000000
+  jle SkipRewards
+  add rsi,68
+//IsPossiblyRealAddress
+  mov rsi,[rsi]
+  cmp rsi,1000000
+  jle SkipRewards
+  add rsi,A8
+//IsPossiblyRealAddress
+  mov rsi,[rsi]
+  cmp rsi,1000000
+  jle SkipRewards
+  add rsi,F8
+//IsPossiblyRealAddress
+  mov rsi,[rsi]
+  cmp rsi,1000000
+  jle SkipRewards
+//Offset is 0 so nothing to add
+//IsPossiblyRealAddress
+  mov rsi,[rsi]
+  cmp rsi,1000000
+  jle SkipRewards
+//This should be DA3/designcontent/Prefabs/Multiplayer/Loot_prefab, increase to get to Smashable and start changes
+  add rsi,41
+//NugCheck
+  cmp byte ptr [IsNugGold],1
+  je Nug
+//Compare with default value of 'Smashabl'
+  mov rax,6C62616873616D53
+  cmp [rsi],rax
+  je DragonKilled
+//Compare with value of 'Nug Nug '
+  mov rax,0067754E0067754E
+  cmp [rsi],rax
+  jne SkipRewards
+DragonKilled:
+//'DragonKi'
+  mov rax,694B6E6F67617244
+  mov [rsi],rax
+  add rsi,8
+//'lled Dra' with 00 instead of 20
+  mov rax,6172440064656C6C
+  mov [rsi],rax
+  add rsi,8
+//'gonKille'
+  mov rax,656C6C694B6E6F67
+  mov [rsi],rax
+  add rsi,8
+//'d Dragon' with 00 instead of 20
+  mov rax,6E6F676172440064
+  mov [rsi],rax
+  add rsi,8
+//'Killed D' with 00 instead of 20
+  mov rax,440064656C6C694B
+  mov [rsi],rax
+  add rsi,8
+//'ragonKil'
+  mov rax,6C694B6E6F676172
+  mov [rsi],rax
+  add rsi,8
+//'led Comp' with 00 instead of 20 and ends with Complete already existing
+  mov rax,706D6F430064656C
+  mov [rsi],rax
+  jmp SkipRewards
+
+Nug:
+//Compare with default value of 'Smashabl'
+  mov rax,6C62616873616D53
+  cmp [rsi],rax
+  je DoNug
+//Compare with  value of 'DragonKi'
+  mov rax,694B6E6F67617244
+  cmp [rsi],rax
+  jne SkipRewards
+DoNug:
+//'Nug Nug '
+  mov rax,0067754E0067754E
+  mov [rsi],rax
+  add rsi,8
+//'Nug Nug ' with 00 instead of 20
+  mov rax,0067754E0067754E
+  mov [rsi],rax
+  add rsi,8
+//'Nug Nug ' with 00 instead of 20
+  mov rax,0067754E0067754E
+  mov [rsi],rax
+  add rsi,8
+//'Nug Nug ' with 00 instead of 20
+  mov rax,0067754E0067754E
+  mov [rsi],rax
+  add rsi,8
+//'Nug Nug ' with 00 instead of 20
+  mov rax,0067754E0067754E
+  mov [rsi],rax
+  add rsi,8
+//'Nug Nug ' with 00 instead of 20
+  mov rax,0067754E0067754E
+  mov [rsi],rax
+  add rsi,8
+//'Nug Comp' with 00 instead of 20
+  mov rax,706D6F430067754E
+  mov [rsi],rax
+  add rsi,8
+//'letion N' with 00 instead of 20
+  mov rax,4E006E6F6974656C
+  mov [rsi],rax
+  add rsi,8
+//'ug Nug N' with 00 instead of 20
+  mov rax,4E0067754E006775
+  mov [rsi],rax
+  add rsi,8
+//'ug '
+  mov eax,00006775
+  mov [esi],eax
+  jmp SkipRewards
+
+//Seperator
+  db 90 90 90 90 90 90
+
+IsAbortAutoKill:
+  db 00 00
+
+IsAbortVases:
+  db 00 00
+
+IsAutoKillHumansOnXP:
+  db 00 00
+
+IsEnableSuperPowers:
+  db 00 00
+
+IsIncreaseXP:
+  db 00 00
+
+IsKillHumansActive:
+  db 00 00
+
+IsNugGold:
+  db 00 00
+
+IsSaarebas:
+  db 00 00
+
+IsSuperHumanDetected:
+  db 00 00
+
+IsVasesDone:
+  db 00 00
+
+IsXPDone:
+  db 00 00
+
+LastPointerStart:
+  db 00 00 00 00 00 00 00 00
+
+Loaded:
+  db 00 00 00 00 00 00 00 00
+
+[DISABLE]
+HijackStats:
+  db 0F 28 7C 24 40 F3 0F 11 73 30 0F 28 74 24 50 74 1D 0F B6 4B 28 B8 01 00 00 00
+HijackRewards:
+  db 01 38 48 8B 5C 24 50 48 8B 6C 24 58 48 8B 74 24 60 48 83 C4 40 5F C3 CC
+unregistersymbol(SkipStats)
+unregistersymbol(Loaded)
+unregistersymbol(LastPointerStart)
+unregistersymbol(IsXPDone)
+unregistersymbol(IsVasesDone)
+unregistersymbol(IsSuperHumanDetected)
+unregistersymbol(IsSaarebas)
+unregistersymbol(IsNugGold)
+unregistersymbol(IsKillHumansActive)
+unregistersymbol(IsIncreaseXP)
+unregistersymbol(IsEnableSuperPowers)
+unregistersymbol(IsAutoKillHumansOnXP)
+unregistersymbol(IsAbortVases)
+unregistersymbol(IsAbortAutoKill)
+unregistersymbol(HijackStats)
+unregistersymbol(HijackRewards)
+dealloc(PlayGod)
+</AssemblerScript>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>2</ID>
+          <Description>"Apply SuperPowers"</Description>
+          <LastState/>
+          <Color>008000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+IsEnableSuperPowers:
+  db 01
+
+[DISABLE]
+IsEnableSuperPowers:
+  db 00
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>3</ID>
+          <Description>"AutoKill New Mobs After XP"</Description>
+          <LastState/>
+          <Color>008000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+IsAbortAutoKill:
+  db 00
+
+[DISABLE]
+IsAbortAutoKill:
+  db 01
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>4</ID>
+          <Description>"Increase XP"</Description>
+          <LastState/>
+          <Color>008000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+IsIncreaseXP:
+  db 01
+
+[DISABLE]
+IsIncreaseXP:
+  db 00
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>5</ID>
+          <Description>"Switch Vases"</Description>
+          <LastState/>
+          <Color>008000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+IsAbortVases:
+  db 00
+
+[DISABLE]
+IsAbortVases:
+  db 01
+</AssemblerScript>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>6</ID>
+      <Description>"Castle Vases"</Description>
+      <Options moHideChildren="1" moManualExpandCollapse="1" moDeactivateChildrenAsWell="1" moAllowManualCollapseAndExpand="1"/>
+      <LastState/>
+      <Color>800080</Color>
+      <GroupHeader>1</GroupHeader>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>7</ID>
+          <Description>"DragonLoot"</Description>
+          <ShowAsHex>1</ShowAsHex>
+          <Color>CA048E</Color>
+          <VariableType>Array of byte</VariableType>
+          <ByteLength>141</ByteLength>
+          <Address>"DragonAgeInquisition.exe"+28E2BF8</Address>
+          <Offsets>
+            <Offset>41</Offset>
+            <Offset>0</Offset>
+            <Offset>F8</Offset>
+            <Offset>A8</Offset>
+            <Offset>68</Offset>
+          </Offsets>
+          <Hotkeys>
+            <Hotkey>
+              <Action>Set Value</Action>
+              <Keys/>
+              <Value>44 41 33 2F 64 65 73 69 67 6E 63 6F 6E 74 65 6E 74 2F 50 72 65 66 61 62 73 2F 4D 75 6C 74 69 70 6C 61 79 65 72 2F 4C 6F 6F 74 5F 50 72 65 66 61 62 00 74 79 70 65 00 64 69 66 69 63 75 6C 74 79 00 44 72 61 67 6F 6E 4B 69 6C 6C 65 64 00 44 72 61 67 6F 6E 4B 69 6C 6C 65 64 00 44 72 61 67 6F 6E 4B 69 6C 6C 65 64 00 44 72 61 67 6F 6E 4B 69 6C 6C 65 64 00 43 6F 6D 70 6C 65 74 69 6F 6E 00 44 72 61 67 6F 6E 4B 69 6C 6C 65 64 00</Value>
+              <ID>0</ID>
+            </Hotkey>
+          </Hotkeys>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>8</ID>
+          <Description>"Nug"</Description>
+          <ShowAsHex>1</ShowAsHex>
+          <Color>00D7D7</Color>
+          <VariableType>Array of byte</VariableType>
+          <ByteLength>141</ByteLength>
+          <Address>"DragonAgeInquisition.exe"+28E2BF8</Address>
+          <Offsets>
+            <Offset>41</Offset>
+            <Offset>0</Offset>
+            <Offset>F8</Offset>
+            <Offset>A8</Offset>
+            <Offset>68</Offset>
+          </Offsets>
+          <Hotkeys>
+            <Hotkey>
+              <Action>Set Value</Action>
+              <Keys/>
+              <Value>44 41 33 2F 64 65 73 69 67 6E 63 6F 6E 74 65 6E 74 2F 50 72 65 66 61 62 73 2F 4D 75 6C 74 69 70 6C 61 79 65 72 2F 4C 6F 6F 74 5F 50 72 65 66 61 62 00 74 79 70 65 00 64 69 66 69 63 75 6C 74 79 00 4E 75 67 00 4E 75 67 00 4E 75 67 00 4E 75 67 00 4E 75 67 00 4E 75 67 00 4E 75 67 00 4E 75 67 00 4E 75 67 00 4E 75 67 00 4E 75 67 00 4E 75 67 00 4E 75 67 00 43 6F 6D 70 6C 65 74 69 6F 6E 00 4E 75 67 00 4E 75 67 00 4E 75 67 00</Value>
+              <ID>0</ID>
+            </Hotkey>
+          </Hotkeys>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>9</ID>
+          <Description>"SwitchToNugGold"</Description>
+          <LastState/>
+          <Color>00D7D7</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+IsNugGold:
+  db 01
+
+[DISABLE]
+IsNugGold:
+  db 00
+</AssemblerScript>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>10</ID>
+      <Description>"Lobotomize Mobs"</Description>
+      <LastState/>
+      <Color>008000</Color>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+//DragonAgeInquisition.exe+3BBB491 Full
+//DragonAgeInquisition.exe+3E56AC9 Trial
+aobscanmodule(HijackResponse,DragonAgeInquisition.exe,80 FA FF 74 11 0F B6 C2 48 C1 E0 05)
+registersymbol(HijackResponse)
+
+HijackResponse+3:
+  db EB
+
+[DISABLE]
+HijackResponse+3:
+  db 74
+unregistersymbol(HijackResponse)
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>11</ID>
+      <Description>"Remove Drops Screen"</Description>
+      <LastState/>
+      <Color>008000</Color>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+//DragonAgeInquisition.exe+357EA5A Full
+//DragonAgeInquisition.exe+3817856 Trial
+aobscanmodule(HijackCards,DragonAgeInquisition.exe,74 36 E8 ?? ?? ?? ?? 4C 8B 00 48 8D ?? ?? ?? ?? ?? 48)
+registersymbol(HijackCards)
+
+HijackCards:
+  db EB
+
+[DISABLE]
+HijackCards:
+  db 74
+unregistersymbol(HijackCards)
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>12</ID>
+      <Description>"!*AutoKill Party After XP*!"</Description>
+      <LastState/>
+      <Color>0000FF</Color>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+IsAutoKillHumansOnXP:
+  db 01
+
+[DISABLE]
+IsAutoKillHumansOnXP:
+  db 00
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>13</ID>
+      <Description>"!*Kill All Humans*!"</Description>
+      <LastState/>
+      <Color>0000FF</Color>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+IsKillHumansActive:
+  db 01
+
+[DISABLE]
+IsKillHumansActive:
+  db 00
+</AssemblerScript>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols/>
+</CheatTable>
