@@ -1,0 +1,65 @@
+{ Game   : Dragon Age: Inquisition
+  Version: 
+  Date   : 2020-04-20
+  Author : Goddard
+
+  This script does blah blah blah
+}
+
+define(address,"DragonAgeInquisition.exe"+2ECC000)
+define(bytes,48 89 4C 24 08)
+
+[ENABLE]
+
+assert(address,bytes)
+alloc(newmem,$1000,"DragonAgeInquisition.exe"+2ECC000)
+
+label(code)
+label(return)
+
+newmem:
+
+code:
+mov rcx,0
+  mov [rsp+08],rcx
+  jmp return
+
+address:
+  jmp newmem
+return:
+
+[DISABLE]
+
+address:
+  db bytes
+  // mov [rsp+08],rcx
+
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: "DragonAgeInquisition.exe"+2ECC000
+
+"DragonAgeInquisition.exe"+2ECBFEC: 00 00                       -  add [rax],al
+"DragonAgeInquisition.exe"+2ECBFEE: 00 00                       -  add [rax],al
+"DragonAgeInquisition.exe"+2ECBFF0: 00 00                       -  add [rax],al
+"DragonAgeInquisition.exe"+2ECBFF2: 00 00                       -  add [rax],al
+"DragonAgeInquisition.exe"+2ECBFF4: 00 00                       -  add [rax],al
+"DragonAgeInquisition.exe"+2ECBFF6: 00 00                       -  add [rax],al
+"DragonAgeInquisition.exe"+2ECBFF8: 00 00                       -  add [rax],al
+"DragonAgeInquisition.exe"+2ECBFFA: 00 00                       -  add [rax],al
+"DragonAgeInquisition.exe"+2ECBFFC: 00 00                       -  add [rax],al
+"DragonAgeInquisition.exe"+2ECBFFE: 00 00                       -  add [rax],al
+// ---------- INJECTING HERE ----------
+"DragonAgeInquisition.exe"+2ECC000: 48 89 4C 24 08              -  mov [rsp+08],rcx
+// ---------- DONE INJECTING  ----------
+"DragonAgeInquisition.exe"+2ECC005: 48 83 EC 58                 -  sub rsp,58
+"DragonAgeInquisition.exe"+2ECC009: 48 8D 05 F0 3F 13 FD        -  lea rax,[DragonAgeInquisition.exe]
+"DragonAgeInquisition.exe"+2ECC010: 48 89 44 24 38              -  mov [rsp+38],rax
+"DragonAgeInquisition.exe"+2ECC015: 48 8B 44 24 38              -  mov rax,[rsp+38]
+"DragonAgeInquisition.exe"+2ECC01A: 48 89 44 24 40              -  mov [rsp+40],rax
+"DragonAgeInquisition.exe"+2ECC01F: 48 8B 44 24 40              -  mov rax,[rsp+40]
+"DragonAgeInquisition.exe"+2ECC024: 48 63 40 3C                 -  movsxd  rax,dword ptr [rax+3C]
+"DragonAgeInquisition.exe"+2ECC028: 48 8B 4C 24 38              -  mov rcx,[rsp+38]
+"DragonAgeInquisition.exe"+2ECC02D: 48 8D 44 01 04              -  lea rax,[rcx+rax+04]
+"DragonAgeInquisition.exe"+2ECC032: 48 89 44 24 48              -  mov [rsp+48],rax
+}
