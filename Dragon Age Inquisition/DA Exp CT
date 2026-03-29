@@ -1,0 +1,74 @@
+{ Game   : Dragon Age: Inquisition
+  Version: 
+  Date   : 2020-04-20
+  Author : Goddard
+
+  This script does blah blah blah
+}
+
+define(address,"DragonAgeInquisition.exe"+3FF7208)
+define(bytes,01 38 48 8B 5C 24 50)
+
+[ENABLE]
+//code from here to '[DISABLE]' will be used to enable the cheat
+
+ 
+ 
+assert(address,bytes)
+alloc(newmem,$1000,"DragonAgeInquisition.exe"+3FF7208)
+
+label(code)
+label(return)
+
+newmem:
+
+code:
+add edi,367566
+  add [rax],edi
+  mov rbx,[rsp+50]
+  jmp return
+
+
+
+address:
+  jmp newmem
+  nop 2
+return:
+
+[DISABLE]
+//code from here till the end of the code will be used to disable the cheat
+address:
+  db bytes
+  // add [rax],edi
+  // mov rbx,[rsp+50]
+
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: "DragonAgeInquisition.exe"+3FF7208
+
+"DragonAgeInquisition.exe"+3FF71E2: 18 48 8D                    -  sbb [rax-73],cl
+"DragonAgeInquisition.exe"+3FF71E5: 4B 08 49 89                 -  or [r9-77],cl
+"DragonAgeInquisition.exe"+3FF71E9: F0 49 89 C1                 - lock  mov r9,rax
+"DragonAgeInquisition.exe"+3FF71ED: 48 89 EA                    -  mov rdx,rbp
+"DragonAgeInquisition.exe"+3FF71F0: E8 15 0D 00 00              -  call DragonAgeInquisition.exe+3FF7F0A
+"DragonAgeInquisition.exe"+3FF71F5: 48 85 C0                    -  test rax,rax
+"DragonAgeInquisition.exe"+3FF71F8: 74 10                       -  je DragonAgeInquisition.exe+3FF720A
+"DragonAgeInquisition.exe"+3FF71FA: 48 8D 48 10                 -  lea rcx,[rax+10]
+"DragonAgeInquisition.exe"+3FF71FE: 48 8D 54 24 70              -  lea rdx,[rsp+70]
+"DragonAgeInquisition.exe"+3FF7203: E8 FA E6 41 FF              -  call DragonAgeInquisition.exe+3415902
+// ---------- INJECTING HERE ----------
+"DragonAgeInquisition.exe"+3FF7208: 01 38                       -  add [rax],edi
+"DragonAgeInquisition.exe"+3FF720A: 48 8B 5C 24 50              -  mov rbx,[rsp+50]
+// ---------- DONE INJECTING  ----------
+"DragonAgeInquisition.exe"+3FF720F: 48 8B 6C 24 58              -  mov rbp,[rsp+58]
+"DragonAgeInquisition.exe"+3FF7214: 48 8B 74 24 60              -  mov rsi,[rsp+60]
+"DragonAgeInquisition.exe"+3FF7219: 48 83 C4 40                 -  add rsp,40
+"DragonAgeInquisition.exe"+3FF721D: 5F                          -  pop rdi
+"DragonAgeInquisition.exe"+3FF721E: C3                          -  ret 
+"DragonAgeInquisition.exe"+3FF721F: CC                          -  int 3 
+"DragonAgeInquisition.exe"+3FF7220: CC                          -  int 3 
+"DragonAgeInquisition.exe"+3FF7221: CC                          -  int 3 
+"DragonAgeInquisition.exe"+3FF7222: CC                          -  int 3 
+"DragonAgeInquisition.exe"+3FF7223: CC                          -  int 3 
+}
