@@ -1,0 +1,147 @@
+/* *
+* GPC SCRIPT
+* 
+*  GPC is a scripting language with C-like syntax.
+*  To learn more access GPC Language Reference on Help menu.
+* *********************************************************** */
+
+
+int runLoop, currentButton, currentValue;
+
+ 
+main {
+    if (event_press(XB360_LS)) {
+        runLoop = !runLoop;
+        if (!runLoop && combo_running(DuplicateItem)) {
+            combo_stop(DuplicateItem);
+        }
+    }
+ 
+    if (runLoop && !combo_running(DuplicateItem)) {
+        combo_run(DuplicateItem);
+    }
+}
+ 
+ combo DuplicateItem {
+ set_val(XB360_RT, 100);
+    wait(250);
+   set_val(XB360_RT, 0);
+    wait(4000);
+        wait(4000);
+            wait(4000);
+                wait(4000);
+                  wait(4000);
+                    wait(4000);
+                      wait(4000);
+                        wait(4000);
+                          wait(4000);
+    set_val(XB360_B, 100);
+    wait(160);
+    set_val(XB360_B, 0);
+    wait(3190);
+    set_val(XB360_RT, 100);
+       wait(250);
+          set_val(XB360_RT, 0);
+  wait(4000);
+        wait(4000);
+            wait(4000);
+                wait(4000);
+                  wait(4000);
+                    wait(4000);
+                      wait(4000);
+                        wait(4000);
+                          wait(4000);
+    set_val(XB360_B, 100);
+    wait(160);
+    set_val(XB360_B, 0);
+    wait(3190);
+ set_val(XB360_Y, 100);
+    wait(250);
+    set_val(XB360_Y, 0);
+    wait(1320);
+    set_val(XB360_Y, 100);
+    wait(260);
+    set_val(XB360_Y, 0);
+    wait(1930);
+    set_val(XB360_A, 100);
+    wait(170);
+    set_val(XB360_A, 0);
+    wait(3150);
+    set_val(XB360_B, 100);
+    wait(160);
+    set_val(XB360_B, 0);
+    wait(4000);
+    set_val(XB360_B, 100);
+    wait(230);
+    set_val(XB360_B, 0);
+    wait(230)
+ 
+
+ 
+main {
+    if (event_press(XB360_LS)) {
+        runLoop = !runLoop;
+        if (!runLoop && combo_running(DuplicateItem)) {
+            combo_stop(DuplicateItem);
+        }
+    }
+ 
+    if (runLoop && !combo_running(DuplicateItem)) {
+        combo_run(DuplicateItem);
+    }
+}
+ 
+ combo DuplicateItem {
+ set_val(XB360_RT, 100);
+    wait(250);
+   set_val(XB360_RT, 0);
+    wait(4000);
+        wait(4000);
+            wait(4000);
+                wait(4000);
+                  wait(4000);
+                    wait(4000);
+                      wait(4000);
+                        wait(4000);
+                          wait(4000);
+    set_val(XB360_B, 100);
+    wait(160);
+    set_val(XB360_B, 0);
+    wait(3190);
+    set_val(XB360_RT, 100);
+       wait(250);
+          set_val(XB360_RT, 0);
+  wait(4000);
+        wait(4000);
+            wait(4000);
+                wait(4000);
+                  wait(4000);
+                    wait(4000);
+                      wait(4000);
+                        wait(4000);
+                          wait(4000);
+    set_val(XB360_B, 100);
+    wait(160);
+    set_val(XB360_B, 0);
+    wait(3190);
+ set_val(XB360_Y, 100);
+    wait(250);
+    set_val(XB360_Y, 0);
+    wait(1320);
+    set_val(XB360_Y, 100);
+    wait(260);
+    set_val(XB360_Y, 0);
+    wait(1930);
+    set_val(XB360_A, 100);
+    wait(170);
+    set_val(XB360_A, 0);
+    wait(3150);
+    set_val(XB360_B, 100);
+    wait(160);
+    set_val(XB360_B, 0);
+    wait(4000);
+    set_val(XB360_B, 100);
+    wait(230);
+    set_val(XB360_B, 0);
+    wait(230)
+ 
